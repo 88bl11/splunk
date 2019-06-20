@@ -39,6 +39,7 @@
         <option name="charting.chart">line</option>
         <option name="charting.drilldown">none</option>
         <option name="refresh.display">progressbar</option>
+        <option name="charting.seriesColors">[0x339933]</option>
         <selection>
           <set token="selection_earliest">$start$</set>
           <!--left slider for start time-->
@@ -65,9 +66,43 @@
         <option name="charting.chart">line</option>
         <option name="charting.drilldown">all</option>
         <option name="refresh.display">progressbar</option>
+        <option name="charting.seriesColors">[0x339933]</option>
         <drilldown>
           <link target="_blank">/app/search/demo_windows_events_denial_audit_failure_error_warning?form.time.earliest=$selection_earliest$&amp;form.time.latest=$selection_latest$</link>
         </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+       <title>ERROR/WARN event annotations</title>
+      <chart>
+        <search>
+          <query>(host=$host$) AND (("Denial" OR "Audit Failure") OR (Type="Error" OR Type="Warning"))
+| where _time &lt; $selection_latest$ AND _time &gt; $selection_earliest$ 
+| timechart fixedrange=false span=$selection_span$ count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+
+        <!-- Secondary search that drives the annotations -->
+        <search type="annotation">
+          <query>index=_internal (log_level="WARN" OR log_level="ERROR") 
+| eval annotation_label = message
+| eval annotation_category = log_level</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+
+        <!-- Customize the event annotation colors based on category name -->
+        <option name="charting.annotation.categoryColors">{"ERROR":"0xff3300","WARN":"0xffcc00"}</option>
+
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">1</option>
+        <option name="charting.seriesColors">[0x339933]</option>
+        <option name="height">287</option>
       </chart>
     </panel>
   </row>
