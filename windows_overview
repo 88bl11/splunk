@@ -1,0 +1,180 @@
+<form theme="dark">
+  <label>DEMO - Overview</label>
+  <description>Overview example</description>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Forwarder overview</title>
+      <table>
+        <search>
+          <query>index=_internal source=*metrics.log group=tcpin_connections 
+ | eval sourceHost=if(isnull(hostname), sourceHost,hostname) 
+ | rename connectionType as connectType
+ | eval connectType=case(fwdType=="uf","univ fwder", fwdType=="lwf", "lightwt fwder",fwdType=="full", "heavy fwder", connectType=="cooked" or connectType=="cookedSSL","Splunk fwder", connectType=="raw" or connectType=="rawSSL","legacy fwder")
+ | eval version=if(isnull(version),"pre 4.2",version)
+ | rename version as Ver 
+ | fields connectType sourceIp sourceHost destPort kb tcp_eps tcp_Kprocessed tcp_KBps splunk_server Ver
+ | eval Indexer= splunk_server
+ | eval Hour=relative_time(_time,"@h")
+ | stats avg(tcp_KBps) sum(tcp_eps) sum(tcp_Kprocessed) sum(kb) by connectType sourceIp sourceHost destPort Indexer Ver
+ | fieldformat Hour=strftime(Hour,"%x %H")</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>list of hosts</title>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=splunkd group=tcpin_connections | stats count by hostname 
+| table hostname</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Errors</title>
+      <single>
+        <search>
+          <query>Type="Error" AND (host="*") AND * |  stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xdc4e41","0xdc4e41"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Warnings</title>
+      <single>
+        <search>
+          <query>Type="Warning" AND (host="*") AND * |  stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xf8be34","0xf8be34"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Information</title>
+      <single>
+        <search>
+          <query>Type="Information" AND (host="*") AND * |  stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xf8be34","0xf8be34"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Accounts with 3 or more failed logons</title>
+      <chart>
+        <search>
+          <query>Failure_Reason=* * ("Audit Failure") AND (host="*") AND * | stats count by user | where count &gt; 2</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top computers generating events</title>
+      <chart>
+        <search>
+          <query>(host="*") AND * AND (("Denial" OR "Audit Failure") OR (Type="Error" OR Type="Warning"))
+| eval SourceName = coalesce(SourceName,source)
+| fillnull 
+| search (SourceName!="none")
+| stats count by host</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+      </chart>
+    </panel>
+  </row>
+</form>
