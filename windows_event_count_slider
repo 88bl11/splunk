@@ -1,0 +1,74 @@
+<form theme="dark">
+  <label>DEMO - Windows events - Denial, Audit Failure, Error, Warning</label>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="host">
+      <label>Host</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <search>
+        <query>host=*
+| stats count by host
+| dedup host
+| sort host</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Windows events - Denial, Audit Failure, Error, Warning</title>
+      <chart>
+        <search>
+          <query>(host=$host$) AND (("Denial" OR "Audit Failure") OR (Type="Error" OR Type="Warning"))
+| timechart bins=1000 count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <selection>
+          <set token="selection_earliest">$start$</set>
+          <!--left slider for start time-->
+          <set token="selection_latest">$end$</set>
+          <!--right slider for end time-->
+          <eval token="selection_span">ceiling(($selection_latest$-$selection_earliest$)/1000)</eval>
+          <!--More granular than 5 min chunks-->
+        </selection>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>$selection_earliest$ $selection_latest$</title>
+      <chart>
+        <search>
+          <query>(host=$host$) AND (("Denial" OR "Audit Failure") OR (Type="Error" OR Type="Warning"))
+| where _time &lt; $selection_latest$ AND _time &gt; $selection_earliest$ 
+| timechart fixedrange=false span=$selection_span$ count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <link target="_blank">/app/search/demo_windows_events_denial_audit_failure_error_warning?form.time.earliest=$selection_earliest$&amp;form.time.latest=$selection_latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+</form>
