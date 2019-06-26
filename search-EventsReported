@@ -1,0 +1,12 @@
+| tstats latest(_time) as Latest where index=* index!=itsi* earliest=-48h by host sourcetype index
+| eval current=now()
+| eval Minimum_Age=round(((current-Latest)/60)/60,2)
+| rangemap field=Minimum_Age default=Critical Normal=0-0.5 Elevated=0.5-2 Warning=2-4
+| eval stIDX=tostring(index) + " -- " + tostring(sourcetype)
+| stats values(stIDX) as "Index -- Sourcetype" list(Latest) as "Latest Event" list(Minimum_Age) as Minimum_Age list(range) as Threshold by host
+| convert ctime("Latest Event")
+| eventstats avg(Minimum_Age) as average by host
+| eval host=md5(host)
+| eval average=round(average,2)
+| sort - average
+| rename Minimum_Age as "Hours Since Last Communication" average as "Average Time in Hours Since Last Communication"
