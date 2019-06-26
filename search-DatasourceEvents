@@ -1,0 +1,1 @@
+| tstats count where index=* earliest=@day-30days latest=@day by sourcetype | addcoltotals labelfield=sourcetype label="TOTAL EVENTS >>>>> "
