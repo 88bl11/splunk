@@ -1,0 +1,1 @@
+| tstats dc(host) as hosts WHERE index=* earliest=@day-30days latest=@day by sourcetype
