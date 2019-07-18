@@ -1,0 +1,36 @@
+<form>
+  <label>Modulus 11</label>
+  <description>NHS Number Check</description>
+  <input type="text" token="nhsnumber">
+    <label>NHS Number</label>
+    <default>4010232137</default>
+    <initialValue>4010232137</initialValue>
+  </input>
+  <fieldset autoRun="false" submitButton="true">
+    <input type="text" token="nhsnumber">
+      <label>Test - 4010232137</label>
+      <default></default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults
+| eval mod11=$nhsnumber$ % 11
+| eval "Modulus 11"=if(mod11==10, "NHS Number", "NOT Found")
+| table "Modulus 11"</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[10]</option>
+        <option name="refresh.display">none</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+</form>
