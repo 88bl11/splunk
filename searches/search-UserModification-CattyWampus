@@ -1,0 +1,2 @@
+
+index=_audit sourcetype=audittrail action=edit_user | eval Date=strftime(_time, "%Y/%m/%d") |where user!=object| stats count by user, info, object, Date | rename user as "Authenticated User" | rename info as "Success Status" | rename object as "Modified Account" | sort - count
