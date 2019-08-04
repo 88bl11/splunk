@@ -1,0 +1,2 @@
+	
+index=_audit tag=authentication | stats count by user, info | sort - info
